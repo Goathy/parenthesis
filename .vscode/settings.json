@@ -1,0 +1,7 @@
+{
+    "editor.formatOnSave": true,
+    "go.testOnSave": true,
+    "gopls": {
+        "ui.semanticTokens": true
+    }
+}
