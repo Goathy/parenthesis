@@ -1,58 +1,129 @@
 package parenthesis_test
 
 import (
-	"errors"
-	"reflect"
 	"testing"
 
 	"github.com/Goathy/parenthesis"
 )
 
-func TestValidation(t *testing.T) {
-	var errTest = errors.New("validation error, unexpected parenthesis")
-
+func TestPostfix(t *testing.T) {
 	tt := []struct {
 		desc  string
 		input string
-		want  error
+		want  string
 	}{
 		{
-			desc:  "case 1",
-			input: "()",
-			want:  nil,
+			desc:  "(53)",
+			input: "(53)",
+			want:  "53",
 		},
 		{
-			desc:  "case 2",
-			input: "(",
-			want:  errTest,
+			desc:  "4+8*3",
+			input: "4+8*3",
+			want:  "483*+",
 		},
 		{
-			desc:  "case 3",
-			input: ")",
-			want:  errTest,
+			desc:  "(4+8)*3",
+			input: "(4+8)*3",
+			want:  "48+3*",
 		},
 		{
-			desc:  "case 4",
-			input: "te(st)",
-			want:  nil,
+			desc:  "6/2*(1+2)",
+			input: "6/2*(1+2)",
+			want:  "62/12+*",
 		},
 		{
-			desc:  "case 5",
-			input: "tes)",
-			want:  errTest,
+			desc:  "8/2*(2+2)",
+			input: "8/2*(2+2)",
+			want:  "82/22+*",
 		},
 		{
-			desc:  "case 6",
-			input: "tes)()",
-			want:  errTest,
+			desc:  "6+9+4^2",
+			input: "6+9+4^2",
+			want:  "69+42^+",
 		},
+		{
+			desc:  "5*(6^2-2)",
+			input: "5*(6^2-2)",
+			want:  "562^2-*",
+		},
+		{
+			desc:  "4*8^2+11",
+			input: "4*8^2+11",
+			want:  "482^*11+",
+		},
+		{
+			desc:  "46+(8*4)/2",
+			input: "46+(8*4)/2",
+			want:  "4684*2/+",
+		},
+		{
+			desc:  "6+9+(4*2+4^2)",
+			input: "6+9+(4*2+4^2)",
+			want:  "69+42*42^++",
+		},
+		{
+			desc:  "7^2*(25+10/5)-13",
+			input: "7^2*(25+10/5)-13",
+			want:  "72^25105/+*13-",
+		},
+		{
+			desc:  "10-7*(3+2)+7^2",
+			input: "10-7*(3+2)+7^2",
+			want:  "10732+*-72^+",
+		},
+		// {
+		// 	desc:  "5-3*(2^3-5+7*(-3))",
+		// 	input: "5-3*(2^3-5+7*(-3))",
+		// 	want:  "5323^5-7-3*+*-",
+		// },
+		{
+			desc:  "2*(1+(4*(2+1)+3))",
+			input: "2*(1+(4*(2+1)+3))",
+			want:  "21421+*3++*",
+		},
+		{
+			desc:  "(3*5^2/15)-(5-2^2)",
+			input: "(3*5^2/15)-(5-2^2)",
+			want:  "352^*15/522^--",
+		},
+		{
+			desc:  "((3+2)^2+3)-9+3^2",
+			input: "((3+2)^2+3)-9+3^2",
+			want:  "32+2^3+9-32^+",
+		},
+		{
+			desc:  "(18/3)^2+((13+7)*5^2)",
+			input: "(18/3)^2+((13+7)*5^2)",
+			want:  "183/2^137+52^*+",
+		},
+		// {
+		// 	desc:  "78+(30-0.5(28+8))/6",
+		// 	input: "78+(30-0.5(28+8))/6",
+		// 	want:  "78 3 00.5 28 8 + * - 6 / +",
+		// },
+		// {
+		// 	desc:  "(5.9-5.3)*7.2+1.4^2",
+		// 	input: "(5.9-5.3)*7.2+1.4^2",
+		// 	want:  "5.9 5.3 - 7.2 * 1.4 2 ^ +",
+		// },
+		// {
+		// 	desc:  "(2.1^2+5.2-7.2)*7.1",
+		// 	input: "(2.1^2+5.2-7.2)*7.1",
+		// 	want:  "2.1 2 ^ 5.2 + 7.2 - 7.1 *",
+		// },
+		// {
+		// 	desc:  "2*20/2+(3+4)*3^2-6+15",
+		// 	input: "2*20/2+(3+4)*3^2-6+15",
+		// 	want:  "2 20 * 2 / 3 4 + 3 2 ^ * + 6 - 15 +",
+		// },
 	}
 	for _, tc := range tt {
 		t.Run(tc.desc, func(t *testing.T) {
-			err := parenthesis.Validate(tc.input)
+			got := parenthesis.Postfix(tc.input)
 
-			if !reflect.DeepEqual(err, tc.want) {
-				t.Errorf("want %q, got %q", tc.want, err)
+			if tc.want != got {
+				t.Errorf("want %q, got %q", tc.want, got)
 			}
 		})
 	}

@@ -1,41 +1,56 @@
 package parenthesis
 
 import (
-	"errors"
+	"strings"
 
 	"github.com/Goathy/stack"
 )
 
-func Validate(in string) error {
-	const (
-		lpar = '('
-		rpar = ')'
-	)
+func precedence(op rune) int {
+	switch op {
+	case '^':
+		return 3
+	case '*', '/':
+		return 2
+	case '+', '-':
+		return 1
+	default:
+		return 0
+	}
+}
 
-	var errUnbalanced = errors.New("validation error, unbalanced  parenthesis")
+func Postfix(infix string) string {
+	op, _ := stack.New[rune](-1)
+	postfix := strings.Builder{}
 
-	s, _ := stack.New[rune](-1)
-
-	for _, r := range in {
-		switch r {
-		case lpar:
-			s.Push(r)
-		case rpar:
-			par, err := s.Peek()
-			if err == stack.EOS {
-				return errUnbalanced
+	for _, in := range infix {
+		switch in {
+		case '(':
+			op.Push(in)
+		case ')':
+			for par, _ := op.Pop(); par != '('; par, _ = op.Pop() {
+				postfix.WriteRune(par)
 			}
-
-			if par == rpar {
-				break
+		case '+', '-', '*', '/', '^':
+			for {
+				x, _ := op.Peek()
+				if !op.IsEmpty() && precedence(x) >= precedence(in) {
+					x, _ = op.Pop()
+					postfix.WriteRune(x)
+				} else {
+					break
+				}
 			}
-			s.Pop()
+			op.Push(in)
+		default:
+			postfix.WriteRune(in)
 		}
 	}
 
-	if !s.IsEmpty() {
-		return errUnbalanced
+	for !op.IsEmpty() {
+		op, _ := op.Pop()
+		postfix.WriteRune(op)
 	}
 
-	return nil
+	return postfix.String()
 }
