@@ -19,6 +19,8 @@ func precedence(op rune) int {
 	}
 }
 
+// TODO: Implement Edsger Dijkstra's the "shunting yard" algorithm
+// https://en.wikipedia.org/wiki/Shunting_yard_algorithm
 func Postfix(infix string) string {
 	op, _ := stack.New[rune](-1)
 	postfix := strings.Builder{}
