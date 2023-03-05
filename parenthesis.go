@@ -6,53 +6,71 @@ import (
 	"github.com/Goathy/stack"
 )
 
-func precedence(op rune) int {
+const (
+	left  = 1
+	right = -1
+)
+
+func precedence(op string) int {
 	switch op {
-	case '^':
+	case "^":
+		return 4
+	case "*", "/":
 		return 3
-	case '*', '/':
+	case "+", "-":
 		return 2
-	case '+', '-':
-		return 1
 	default:
 		return 0
 	}
 }
 
+func associativity(op string) int {
+	switch op {
+	case "^":
+		return right
+	default:
+		return left
+	}
+}
+
 // TODO: Implement Edsger Dijkstra's the "shunting yard" algorithm
 // https://en.wikipedia.org/wiki/Shunting_yard_algorithm
-func Postfix(infix string) string {
-	op, _ := stack.New[rune](-1)
-	postfix := strings.Builder{}
+func Postfix(infix []string) string {
+	var (
+		s, _ = stack.New[string](-1)
+		re   = strings.Builder{}
+	)
 
 	for _, in := range infix {
 		switch in {
-		case '(':
-			op.Push(in)
-		case ')':
-			for par, _ := op.Pop(); par != '('; par, _ = op.Pop() {
-				postfix.WriteRune(par)
-			}
-		case '+', '-', '*', '/', '^':
+		case "(":
+			s.Push(in)
+		case ")":
 			for {
-				x, _ := op.Peek()
-				if !op.IsEmpty() && precedence(x) >= precedence(in) {
-					x, _ = op.Pop()
-					postfix.WriteRune(x)
-				} else {
+				op, _ := s.Pop()
+
+				if op == "(" {
 					break
 				}
+
+				re.WriteString(op)
 			}
-			op.Push(in)
+		case "+", "-", "*", "/", "^":
+			for op, _ := s.Peek(); !s.IsEmpty() && precedence(op) > precedence(in) || precedence(op) == precedence(in) && associativity(in) == left; op, _ = s.Peek() {
+				op, _ = s.Pop()
+				re.WriteString(op)
+			}
+
+			s.Push(in)
 		default:
-			postfix.WriteRune(in)
+			re.WriteString(in)
 		}
 	}
 
-	for !op.IsEmpty() {
-		op, _ := op.Pop()
-		postfix.WriteRune(op)
+	for !s.IsEmpty() {
+		v, _ := s.Pop()
+		re.WriteString(v)
 	}
 
-	return postfix.String()
+	return re.String()
 }
