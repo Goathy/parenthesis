@@ -1,3 +1,6 @@
+// Implementation of Edsger Dijkstra's the "shunting yard" algorithm
+// https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+
 package parenthesis
 
 import (
@@ -7,9 +10,31 @@ import (
 )
 
 const (
-	left  = 1
-	right = -1
+	opPow   string = "^"
+	opMulti string = "*"
+	opDiv   string = "/"
+	opAdd   string = "+"
+	opSub   string = "-"
+
+	opLeftPar  string = "("
+	opRightPar string = ")"
 )
+
+type associativity int
+
+const (
+	assocLeft  associativity = -1
+	assocRight associativity = 1
+)
+
+func assoc(o string) associativity {
+	switch o {
+	case "^":
+		return assocRight
+	default:
+		return assocLeft
+	}
+}
 
 func precedence(op string) int {
 	switch op {
@@ -24,53 +49,42 @@ func precedence(op string) int {
 	}
 }
 
-func associativity(op string) int {
-	switch op {
-	case "^":
-		return right
-	default:
-		return left
-	}
-}
-
-// TODO: Implement Edsger Dijkstra's the "shunting yard" algorithm
-// https://en.wikipedia.org/wiki/Shunting_yard_algorithm
 func Postfix(infix []string) string {
 	var (
-		s, _ = stack.New[string](-1)
-		re   = strings.Builder{}
+		size    = int64(len(infix))
+		ops, _  = stack.New[string](size)
+		postfix = strings.Builder{}
 	)
 
-	for _, in := range infix {
-		switch in {
-		case "(":
-			s.Push(in)
-		case ")":
+	for _, token := range infix {
+		switch token {
+		case opLeftPar:
+			ops.Push(token)
+		case opRightPar:
 			for {
-				op, _ := s.Pop()
+				operator, _ := ops.Pop()
 
-				if op == "(" {
+				if operator == opLeftPar {
 					break
 				}
 
-				re.WriteString(op)
+				postfix.WriteString(operator)
 			}
-		case "+", "-", "*", "/", "^":
-			for op, _ := s.Peek(); !s.IsEmpty() && precedence(op) > precedence(in) || precedence(op) == precedence(in) && associativity(in) == left; op, _ = s.Peek() {
-				op, _ = s.Pop()
-				re.WriteString(op)
+		case opAdd, opSub, opMulti, opDiv, opPow:
+			for operator, _ := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == assocLeft; operator, _ = ops.Peek() {
+				operator, _ = ops.Pop()
+				postfix.WriteString(operator)
 			}
-
-			s.Push(in)
+			ops.Push(token)
 		default:
-			re.WriteString(in)
+			postfix.WriteString(token)
 		}
 	}
 
-	for !s.IsEmpty() {
-		v, _ := s.Pop()
-		re.WriteString(v)
+	for !ops.IsEmpty() {
+		operator, _ := ops.Pop()
+		postfix.WriteString(operator)
 	}
 
-	return re.String()
+	return postfix.String()
 }
