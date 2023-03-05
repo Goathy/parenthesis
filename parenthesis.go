@@ -4,8 +4,6 @@
 package parenthesis
 
 import (
-	"strings"
-
 	"github.com/Goathy/stack"
 )
 
@@ -49,11 +47,11 @@ func precedence(op string) int {
 	}
 }
 
-func Postfix(infix []string) string {
+func Postfix(infix []string) []string {
 	var (
 		size    = int64(len(infix))
 		ops, _  = stack.New[string](size)
-		postfix = strings.Builder{}
+		postfix = make([]string, 0)
 	)
 
 	for _, token := range infix {
@@ -68,23 +66,23 @@ func Postfix(infix []string) string {
 					break
 				}
 
-				postfix.WriteString(operator)
+				postfix = append(postfix, operator)
 			}
 		case opAdd, opSub, opMulti, opDiv, opPow:
 			for operator, _ := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == assocLeft; operator, _ = ops.Peek() {
 				operator, _ = ops.Pop()
-				postfix.WriteString(operator)
+				postfix = append(postfix, operator)
 			}
 			ops.Push(token)
 		default:
-			postfix.WriteString(token)
+			postfix = append(postfix, token)
 		}
 	}
 
 	for !ops.IsEmpty() {
 		operator, _ := ops.Pop()
-		postfix.WriteString(operator)
+		postfix = append(postfix, operator)
 	}
 
-	return postfix.String()
+	return postfix
 }
