@@ -2,4 +2,4 @@ module github.com/Goathy/parenthesis
 
 go 1.20
 
-require github.com/Goathy/stack v0.0.0-20230301142112-8ab917ae6638 // indirect
+require github.com/Goathy/containers v0.0.0-20230309152338-c616c4910c6c // indirect
