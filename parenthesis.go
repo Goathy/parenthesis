@@ -4,7 +4,7 @@
 package parenthesis
 
 import (
-	"github.com/Goathy/stack"
+	"github.com/Goathy/containers/stack"
 )
 
 const (
@@ -49,8 +49,7 @@ func precedence(op string) int {
 
 func Postfix(infix []string) []string {
 	var (
-		size    = int64(len(infix))
-		ops, _  = stack.New[string](size)
+		ops     = stack.New[string]()
 		postfix = make([]string, 0)
 	)
 
@@ -60,7 +59,7 @@ func Postfix(infix []string) []string {
 			ops.Push(token)
 		case opRightPar:
 			for {
-				operator, _ := ops.Pop()
+				operator := ops.Pop()
 
 				if operator == opLeftPar {
 					break
@@ -69,8 +68,8 @@ func Postfix(infix []string) []string {
 				postfix = append(postfix, operator)
 			}
 		case opAdd, opSub, opMulti, opDiv, opPow:
-			for operator, _ := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == assocLeft; operator, _ = ops.Peek() {
-				operator, _ = ops.Pop()
+			for operator := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == assocLeft; operator = ops.Peek() {
+				operator = ops.Pop()
 				postfix = append(postfix, operator)
 			}
 			ops.Push(token)
@@ -80,7 +79,7 @@ func Postfix(infix []string) []string {
 	}
 
 	for !ops.IsEmpty() {
-		operator, _ := ops.Pop()
+		operator := ops.Pop()
 		postfix = append(postfix, operator)
 	}
 
