@@ -11,7 +11,8 @@ const (
 	opLeftPar  string = "("
 	opRightPar string = ")"
 
-	emptyLine  string        = " "
+	blank string = " "
+
 	assocLeft  associativity = -1
 	assocRight associativity = 1
 )
