@@ -29,7 +29,6 @@ func Tokenize(expression string) []string {
 				output = append(output, v)
 			}
 
-			// TODO: Remove type conversion
 			ns.Enqueue(e)
 		default:
 
