@@ -7,24 +7,6 @@ import (
 	"github.com/Goathy/containers/stack"
 )
 
-const (
-	opPow   string = "^"
-	opMulti string = "*"
-	opDiv   string = "/"
-	opAdd   string = "+"
-	opSub   string = "-"
-
-	opLeftPar  string = "("
-	opRightPar string = ")"
-)
-
-type associativity int
-
-const (
-	assocLeft  associativity = -1
-	assocRight associativity = 1
-)
-
 func assoc(o string) associativity {
 	switch o {
 	case "^":

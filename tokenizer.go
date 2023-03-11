@@ -18,6 +18,8 @@ func Tokenize(expression string) []string {
 
 	for _, exp := range expression {
 		switch e := string(exp); e {
+		case emptyLine:
+			continue
 		case opLeftPar, opRightPar, opAdd, opMulti, opDiv, opPow, opSub:
 			if !isOperator(ns.Peek()) && ns.Peek() != "" {
 				v := ns.Dequeue()
