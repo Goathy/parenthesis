@@ -31,9 +31,6 @@ func Tokenize(expression string) []string {
 
 			ns.Enqueue(e)
 		default:
-
-			// TODO: If e is number and Peek is opSub concat
-
 			if isOperator(ns.Peek()) {
 				v := ns.Dequeue()
 				output = append(output, v)
