@@ -12,6 +12,7 @@ const (
 	opRightPar string = ")"
 
 	blank string = " "
+	empty string = ""
 
 	assocLeft  associativity = -1
 	assocRight associativity = 1

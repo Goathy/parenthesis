@@ -21,7 +21,7 @@ func Tokenize(expression string) []string {
 		case blank:
 			continue
 		case opLeftPar, opRightPar, opAdd, opMulti, opDiv, opPow, opSub:
-			if !isOperator(ns.Peek()) && ns.Peek() != "" {
+			if !isOperator(ns.Peek()) && ns.Peek() != empty {
 				v := ns.Dequeue()
 				output = append(output, v)
 			}
