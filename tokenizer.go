@@ -10,7 +10,6 @@ func isOperator(s string) bool {
 	return s == opLeftPar || s == opRightPar || s == opAdd || s == opMulti || s == opDiv || s == opPow || s == opSub
 }
 
-// RESOURCE: https://stackoverflow.com/questions/46861254/infix-to-postfix-for-negative-numbers#46861656
 func Tokenize(expression string) []string {
 	var (
 		merge  = false
