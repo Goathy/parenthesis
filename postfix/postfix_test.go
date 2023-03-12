@@ -132,6 +132,7 @@ func TestPostfix(t *testing.T) {
 	}
 	for _, tc := range tt {
 		t.Run(tc.desc, func(t *testing.T) {
+			postfix := postfix.New()
 			got := postfix.Transform(tc.input)
 
 			if !reflect.DeepEqual(tc.want, got) {
