@@ -39,11 +39,11 @@ func TestTokenizer(t *testing.T) {
 			input: "-7",
 			want:  []string{"-7"},
 		},
-		// {
-		// 	desc:  "3--7",
-		// 	input: "3--7",
-		// 	want:  []string{"3", "-", "-7"},
-		// },
+		{
+			desc:  "3--7",
+			input: "3--7",
+			want:  []string{"3", "-", "-7"},
+		},
 		// {
 		// 	desc:  "67+-9.3",
 		// 	input: "67+-9.3",
