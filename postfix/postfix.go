@@ -8,7 +8,65 @@ import (
 	"github.com/Goathy/parenthesis"
 )
 
-func assoc(o string) parenthesis.Associativity {
+type stacker[V any] interface {
+	IsEmpty() bool
+	Push(v V)
+	Pop() V
+	Peek() V
+}
+
+type postfix struct {
+	stack  stacker[string]
+	output []string
+}
+
+func New() *postfix {
+	return &postfix{
+		stack:  stack.New[string](),
+		output: make([]string, 0),
+	}
+}
+
+func (p *postfix) Transform(infix []string) []string {
+	for _, token := range infix {
+		switch token {
+		case parenthesis.OpLeftPar:
+			p.stack.Push(token)
+		case parenthesis.OpRightPar:
+			for {
+				o := p.stack.Pop()
+
+				if o == parenthesis.OpLeftPar {
+					break
+				}
+
+				p.move(o)
+			}
+		case parenthesis.OpAdd,
+			parenthesis.OpSub,
+			parenthesis.OpMulti,
+			parenthesis.OpDiv,
+			parenthesis.OpPow:
+			for o := p.stack.Peek(); !p.stack.IsEmpty() && p.precedence(o) > p.precedence(token) || p.precedence(o) == p.precedence(token) && p.assoc(token) == parenthesis.AssocLeft; o = p.stack.Peek() {
+				o = p.stack.Pop()
+				p.move(o)
+			}
+			p.stack.Push(token)
+		default:
+			p.move(token)
+
+		}
+	}
+
+	for !p.stack.IsEmpty() {
+		operator := p.stack.Pop()
+		p.move(operator)
+	}
+
+	return p.output
+}
+
+func (p *postfix) assoc(o string) parenthesis.Associativity {
 	switch o {
 	case parenthesis.OpPow:
 		return parenthesis.AssocRight
@@ -17,7 +75,7 @@ func assoc(o string) parenthesis.Associativity {
 	}
 }
 
-func precedence(op string) int {
+func (p *postfix) precedence(op string) int {
 	switch op {
 	case parenthesis.OpPow:
 		return 4
@@ -30,45 +88,6 @@ func precedence(op string) int {
 	}
 }
 
-func Transform(infix []string) []string {
-	var (
-		ops     = stack.New[string]()
-		postfix = make([]string, 0)
-	)
-
-	for _, token := range infix {
-		switch token {
-		case parenthesis.OpLeftPar:
-			ops.Push(token)
-		case parenthesis.OpRightPar:
-			for {
-				operator := ops.Pop()
-
-				if operator == parenthesis.OpLeftPar {
-					break
-				}
-
-				postfix = append(postfix, operator)
-			}
-		case parenthesis.OpAdd,
-			parenthesis.OpSub,
-			parenthesis.OpMulti,
-			parenthesis.OpDiv,
-			parenthesis.OpPow:
-			for operator := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == parenthesis.AssocLeft; operator = ops.Peek() {
-				operator = ops.Pop()
-				postfix = append(postfix, operator)
-			}
-			ops.Push(token)
-		default:
-			postfix = append(postfix, token)
-		}
-	}
-
-	for !ops.IsEmpty() {
-		operator := ops.Pop()
-		postfix = append(postfix, operator)
-	}
-
-	return postfix
+func (p *postfix) move(v string) {
+	p.output = append(p.output, v)
 }
