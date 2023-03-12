@@ -1,6 +1,6 @@
 package parenthesis
 
-type associativity int
+type Associativity int
 
 const (
 	OpPow      string = "^"
@@ -14,6 +14,6 @@ const (
 	Blank string = " "
 	Empty string = ""
 
-	assocLeft  associativity = -1
-	assocRight associativity = 1
+	AssocLeft  Associativity = -1
+	AssocRight Associativity = 1
 )

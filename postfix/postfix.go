@@ -1,18 +1,19 @@
 // Implementation of Edsger Dijkstra's the "shunting yard" algorithm
 // https://en.wikipedia.org/wiki/Shunting_yard_algorithm
 
-package parenthesis
+package postfix
 
 import (
 	"github.com/Goathy/containers/stack"
+	"github.com/Goathy/parenthesis"
 )
 
-func assoc(o string) associativity {
+func assoc(o string) parenthesis.Associativity {
 	switch o {
 	case "^":
-		return assocRight
+		return parenthesis.AssocRight
 	default:
-		return assocLeft
+		return parenthesis.AssocLeft
 	}
 }
 
@@ -29,7 +30,7 @@ func precedence(op string) int {
 	}
 }
 
-func Postfix(infix []string) []string {
+func Transform(infix []string) []string {
 	var (
 		ops     = stack.New[string]()
 		postfix = make([]string, 0)
@@ -37,20 +38,24 @@ func Postfix(infix []string) []string {
 
 	for _, token := range infix {
 		switch token {
-		case OpLeftPar:
+		case parenthesis.OpLeftPar:
 			ops.Push(token)
-		case OpRightPar:
+		case parenthesis.OpRightPar:
 			for {
 				operator := ops.Pop()
 
-				if operator == OpLeftPar {
+				if operator == parenthesis.OpLeftPar {
 					break
 				}
 
 				postfix = append(postfix, operator)
 			}
-		case OpAdd, OpSub, OpMulti, OpDiv, OpPow:
-			for operator := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == assocLeft; operator = ops.Peek() {
+		case parenthesis.OpAdd,
+			parenthesis.OpSub,
+			parenthesis.OpMulti,
+			parenthesis.OpDiv,
+			parenthesis.OpPow:
+			for operator := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == parenthesis.AssocLeft; operator = ops.Peek() {
 				operator = ops.Pop()
 				postfix = append(postfix, operator)
 			}
