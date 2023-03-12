@@ -37,19 +37,19 @@ func Postfix(infix []string) []string {
 
 	for _, token := range infix {
 		switch token {
-		case opLeftPar:
+		case OpLeftPar:
 			ops.Push(token)
-		case opRightPar:
+		case OpRightPar:
 			for {
 				operator := ops.Pop()
 
-				if operator == opLeftPar {
+				if operator == OpLeftPar {
 					break
 				}
 
 				postfix = append(postfix, operator)
 			}
-		case opAdd, opSub, opMulti, opDiv, opPow:
+		case OpAdd, OpSub, OpMulti, OpDiv, OpPow:
 			for operator := ops.Peek(); !ops.IsEmpty() && precedence(operator) > precedence(token) || precedence(operator) == precedence(token) && assoc(token) == assocLeft; operator = ops.Peek() {
 				operator = ops.Pop()
 				postfix = append(postfix, operator)
