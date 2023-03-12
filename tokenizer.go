@@ -38,6 +38,12 @@ func Tokenize(expression string) []string {
 				continue
 			}
 
+			if ns.Peek() == opSub && e == opSub {
+				ns.Enqueue(e)
+				merge = true
+				continue
+			}
+
 			if !isOperator(ns.Peek()) && ns.Peek() != empty {
 				v := ns.Dequeue()
 				output = append(output, v)
