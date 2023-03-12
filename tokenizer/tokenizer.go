@@ -63,7 +63,7 @@ func (t *tokenizer) Tokenize(expression string) []string {
 
 			if t.queue.Peek() == parenthesis.OpLeftPar && e == parenthesis.OpSub {
 				v := t.queue.Dequeue()
-				t.output = append(t.output, v)
+				t.move(v)
 				t.queue.Enqueue(e)
 				t.merge = true
 				continue
@@ -71,12 +71,12 @@ func (t *tokenizer) Tokenize(expression string) []string {
 
 			if !t.isOperator(t.queue.Peek()) && t.queue.Peek() != parenthesis.Empty {
 				v := t.queue.Dequeue()
-				t.output = append(t.output, v)
+				t.move(v)
 			}
 
 			if t.isOperator(t.queue.Peek()) {
 				v := t.queue.Dequeue()
-				t.output = append(t.output, v)
+				t.move(v)
 			}
 
 			t.queue.Enqueue(e)
@@ -90,7 +90,7 @@ func (t *tokenizer) Tokenize(expression string) []string {
 
 			if t.isOperator(t.queue.Peek()) {
 				v := t.queue.Dequeue()
-				t.output = append(t.output, v)
+				t.move(v)
 				t.queue.Enqueue(e)
 				continue
 			}
@@ -107,7 +107,7 @@ func (t *tokenizer) Tokenize(expression string) []string {
 
 	for !t.queue.IsEmpty() {
 		v := t.queue.Dequeue()
-		t.output = append(t.output, v)
+		t.move(v)
 	}
 
 	return t.output
@@ -126,4 +126,8 @@ func (t *tokenizer) isOperator(o string) bool {
 	default:
 		return false
 	}
+}
+
+func (t *tokenizer) move(v string) {
+	t.output = append(t.output, v)
 }
