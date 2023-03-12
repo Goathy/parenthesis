@@ -10,7 +10,7 @@ import (
 
 func assoc(o string) parenthesis.Associativity {
 	switch o {
-	case "^":
+	case parenthesis.OpPow:
 		return parenthesis.AssocRight
 	default:
 		return parenthesis.AssocLeft
@@ -19,11 +19,11 @@ func assoc(o string) parenthesis.Associativity {
 
 func precedence(op string) int {
 	switch op {
-	case "^":
+	case parenthesis.OpPow:
 		return 4
-	case "*", "/":
+	case parenthesis.OpMulti, parenthesis.OpDiv:
 		return 3
-	case "+", "-":
+	case parenthesis.OpAdd, parenthesis.OpSub:
 		return 2
 	default:
 		return 0
