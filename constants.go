@@ -3,16 +3,16 @@ package parenthesis
 type associativity int
 
 const (
-	opPow      string = "^"
-	opMulti    string = "*"
-	opDiv      string = "/"
-	opAdd      string = "+"
-	opSub      string = "-"
-	opLeftPar  string = "("
-	opRightPar string = ")"
+	OpPow      string = "^"
+	OpMulti    string = "*"
+	OpDiv      string = "/"
+	OpAdd      string = "+"
+	OpSub      string = "-"
+	OpLeftPar  string = "("
+	OpRightPar string = ")"
 
-	blank string = " "
-	empty string = ""
+	Blank string = " "
+	Empty string = ""
 
 	assocLeft  associativity = -1
 	assocRight associativity = 1
