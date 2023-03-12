@@ -1,10 +1,10 @@
-package parenthesis_test
+package tokenizer_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/Goathy/parenthesis"
+	"github.com/Goathy/parenthesis/tokenizer"
 )
 
 func TestTokenizer(t *testing.T) {
@@ -162,7 +162,9 @@ func TestTokenizer(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := parenthesis.Tokenize(tc.input)
+			tokenizer := tokenizer.New()
+
+			got := tokenizer.Tokenize(tc.input)
 
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("want %q, got %q", tc.want, got)
