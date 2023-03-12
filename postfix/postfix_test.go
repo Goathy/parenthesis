@@ -1,10 +1,10 @@
-package parenthesis_test
+package postfix_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/Goathy/parenthesis"
+	"github.com/Goathy/parenthesis/postfix"
 )
 
 // Detailed examples https://en.wikipedia.org/wiki/Shunting_yard_algorithm
@@ -132,7 +132,7 @@ func TestPostfix(t *testing.T) {
 	}
 	for _, tc := range tt {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := parenthesis.Postfix(tc.input)
+			got := postfix.Transform(tc.input)
 
 			if !reflect.DeepEqual(tc.want, got) {
 				t.Errorf("want %q, got %q", tc.want, got)
