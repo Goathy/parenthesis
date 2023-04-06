@@ -162,8 +162,6 @@ func TestTokenizer(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.desc, func(t *testing.T) {
-			tokenizer := tokenizer.New()
-
 			got := tokenizer.Tokenize(tc.input)
 
 			if !reflect.DeepEqual(got, tc.want) {
