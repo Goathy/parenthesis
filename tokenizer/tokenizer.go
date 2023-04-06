@@ -9,9 +9,9 @@ import (
 
 func Tokenize(expression string) []string {
 	var (
-		merge  = false
-		queue  = queue.New[string]()
-		output = make([]string, 0)
+		toMerge = false
+		queue   = queue.New[string]()
+		result  = make([]string, 0)
 	)
 
 	for _, exp := range expression {
@@ -36,46 +36,46 @@ func Tokenize(expression string) []string {
 
 			if queue.Peek() == parenthesis.Empty && e == parenthesis.OpSub {
 				queue.Enqueue(e)
-				merge = true
+				toMerge = true
 				continue
 			}
 
 			if queue.Peek() == parenthesis.OpSub && e == parenthesis.OpSub {
 				queue.Enqueue(e)
-				merge = true
+				toMerge = true
 				continue
 			}
 
 			if queue.Peek() == parenthesis.OpLeftPar && e == parenthesis.OpSub {
 				v := queue.Dequeue()
-				output = append(output, v)
+				result = append(result, v)
 				queue.Enqueue(e)
-				merge = true
+				toMerge = true
 				continue
 			}
 
 			if !isOperator(queue.Peek()) && queue.Peek() != parenthesis.Empty {
 				v := queue.Dequeue()
-				output = append(output, v)
+				result = append(result, v)
 			}
 
 			if isOperator(queue.Peek()) {
 				v := queue.Dequeue()
-				output = append(output, v)
+				result = append(result, v)
 			}
 
 			queue.Enqueue(e)
 		default:
-			if merge {
+			if toMerge {
 				v := queue.Dequeue()
 				queue.Enqueue(fmt.Sprintf("%s%s", v, e))
-				merge = false
+				toMerge = false
 				continue
 			}
 
 			if isOperator(queue.Peek()) {
 				v := queue.Dequeue()
-				output = append(output, v)
+				result = append(result, v)
 				queue.Enqueue(e)
 				continue
 			}
@@ -92,10 +92,10 @@ func Tokenize(expression string) []string {
 
 	for !queue.IsEmpty() {
 		v := queue.Dequeue()
-		output = append(output, v)
+		result = append(result, v)
 	}
 
-	return output
+	return result
 }
 
 func isOperator(o string) bool {
