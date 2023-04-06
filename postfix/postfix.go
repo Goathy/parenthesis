@@ -8,65 +8,51 @@ import (
 	"github.com/Goathy/parenthesis"
 )
 
-type stacker[V any] interface {
-	IsEmpty() bool
-	Push(v V)
-	Pop() V
-	Peek() V
-}
-
-type postfix struct {
-	stack  stacker[string]
-	output []string
-}
-
-func New() *postfix {
-	return &postfix{
-		stack:  stack.New[string](),
-		output: make([]string, 0),
-	}
-}
-
-func (p *postfix) Transform(infix []string) []string {
+func Transform(infix []string) []string {
+	var (
+		stack  = stack.New[string]()
+		result = make([]string, 0)
+	)
 	for _, token := range infix {
 		switch token {
 		case parenthesis.OpLeftPar:
-			p.stack.Push(token)
+			stack.Push(token)
 		case parenthesis.OpRightPar:
 			for {
-				o := p.stack.Pop()
+				o := stack.Pop()
 
 				if o == parenthesis.OpLeftPar {
 					break
 				}
 
-				p.move(o)
+				result = append(result, o)
 			}
 		case parenthesis.OpAdd,
 			parenthesis.OpSub,
 			parenthesis.OpMulti,
 			parenthesis.OpDiv,
 			parenthesis.OpPow:
-			for o := p.stack.Peek(); !p.stack.IsEmpty() && p.precedence(o) > p.precedence(token) || p.precedence(o) == p.precedence(token) && p.assoc(token) == parenthesis.AssocLeft; o = p.stack.Peek() {
-				o = p.stack.Pop()
-				p.move(o)
+			for o := stack.Peek(); !stack.IsEmpty() && precedence(o) > precedence(token) || precedence(o) == precedence(token) && assoc(token) == parenthesis.AssocLeft; o = stack.Peek() {
+				o = stack.Pop()
+				result = append(result, o)
+
 			}
-			p.stack.Push(token)
+			stack.Push(token)
 		default:
-			p.move(token)
+			result = append(result, token)
 
 		}
 	}
 
-	for !p.stack.IsEmpty() {
-		operator := p.stack.Pop()
-		p.move(operator)
+	for !stack.IsEmpty() {
+		operator := stack.Pop()
+		result = append(result, operator)
 	}
 
-	return p.output
+	return result
 }
 
-func (p *postfix) assoc(o string) parenthesis.Associativity {
+func assoc(o string) parenthesis.Associativity {
 	switch o {
 	case parenthesis.OpPow:
 		return parenthesis.AssocRight
@@ -75,7 +61,7 @@ func (p *postfix) assoc(o string) parenthesis.Associativity {
 	}
 }
 
-func (p *postfix) precedence(op string) int {
+func precedence(op string) int {
 	switch op {
 	case parenthesis.OpPow:
 		return 4
@@ -86,8 +72,4 @@ func (p *postfix) precedence(op string) int {
 	default:
 		return 0
 	}
-}
-
-func (p *postfix) move(v string) {
-	p.output = append(p.output, v)
 }
