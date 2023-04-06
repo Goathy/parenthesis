@@ -7,28 +7,13 @@ import (
 	"github.com/Goathy/parenthesis"
 )
 
-type queuer[V any] interface {
-	Enqueue(v V)
-	Dequeue() V
-	IsEmpty() bool
-	Peek() V
-}
+func Tokenize(expression string) []string {
+	var (
+		merge  = false
+		queue  = queue.New[string]()
+		output = make([]string, 0)
+	)
 
-type tokenizer struct {
-	merge  bool
-	queue  queuer[string]
-	output []string
-}
-
-func New() *tokenizer {
-	return &tokenizer{
-		merge:  false,
-		queue:  queue.New[string](),
-		output: make([]string, 0),
-	}
-}
-
-func (t *tokenizer) Tokenize(expression string) []string {
 	for _, exp := range expression {
 		switch e := string(exp); e {
 		case parenthesis.Blank:
@@ -41,79 +26,79 @@ func (t *tokenizer) Tokenize(expression string) []string {
 			parenthesis.OpPow,
 			parenthesis.OpSub:
 
-			if t.queue.Peek() == parenthesis.Empty && e == parenthesis.OpAdd {
+			if queue.Peek() == parenthesis.Empty && e == parenthesis.OpAdd {
 				continue
 			}
 
-			if t.queue.Peek() == parenthesis.OpSub && e == parenthesis.OpAdd {
+			if queue.Peek() == parenthesis.OpSub && e == parenthesis.OpAdd {
 				continue
 			}
 
-			if t.queue.Peek() == parenthesis.Empty && e == parenthesis.OpSub {
-				t.queue.Enqueue(e)
-				t.merge = true
+			if queue.Peek() == parenthesis.Empty && e == parenthesis.OpSub {
+				queue.Enqueue(e)
+				merge = true
 				continue
 			}
 
-			if t.queue.Peek() == parenthesis.OpSub && e == parenthesis.OpSub {
-				t.queue.Enqueue(e)
-				t.merge = true
+			if queue.Peek() == parenthesis.OpSub && e == parenthesis.OpSub {
+				queue.Enqueue(e)
+				merge = true
 				continue
 			}
 
-			if t.queue.Peek() == parenthesis.OpLeftPar && e == parenthesis.OpSub {
-				v := t.queue.Dequeue()
-				t.move(v)
-				t.queue.Enqueue(e)
-				t.merge = true
+			if queue.Peek() == parenthesis.OpLeftPar && e == parenthesis.OpSub {
+				v := queue.Dequeue()
+				output = append(output, v)
+				queue.Enqueue(e)
+				merge = true
 				continue
 			}
 
-			if !t.isOperator(t.queue.Peek()) && t.queue.Peek() != parenthesis.Empty {
-				v := t.queue.Dequeue()
-				t.move(v)
+			if !isOperator(queue.Peek()) && queue.Peek() != parenthesis.Empty {
+				v := queue.Dequeue()
+				output = append(output, v)
 			}
 
-			if t.isOperator(t.queue.Peek()) {
-				v := t.queue.Dequeue()
-				t.move(v)
+			if isOperator(queue.Peek()) {
+				v := queue.Dequeue()
+				output = append(output, v)
 			}
 
-			t.queue.Enqueue(e)
+			queue.Enqueue(e)
 		default:
-			if t.merge {
-				v := t.queue.Dequeue()
-				t.queue.Enqueue(fmt.Sprintf("%s%s", v, e))
-				t.merge = false
+			if merge {
+				v := queue.Dequeue()
+				queue.Enqueue(fmt.Sprintf("%s%s", v, e))
+				merge = false
 				continue
 			}
 
-			if t.isOperator(t.queue.Peek()) {
-				v := t.queue.Dequeue()
-				t.move(v)
-				t.queue.Enqueue(e)
+			if isOperator(queue.Peek()) {
+				v := queue.Dequeue()
+				output = append(output, v)
+				queue.Enqueue(e)
 				continue
 			}
 
-			if !t.isOperator(t.queue.Peek()) {
-				v := t.queue.Dequeue()
-				t.queue.Enqueue(fmt.Sprintf("%s%s", v, e))
+			if !isOperator(queue.Peek()) {
+				v := queue.Dequeue()
+				queue.Enqueue(fmt.Sprintf("%s%s", v, e))
 				continue
 			}
 
-			t.queue.Enqueue(e)
+			queue.Enqueue(e)
 		}
 	}
 
-	for !t.queue.IsEmpty() {
-		v := t.queue.Dequeue()
-		t.move(v)
+	for !queue.IsEmpty() {
+		v := queue.Dequeue()
+		output = append(output, v)
 	}
 
-	return t.output
+	return output
 }
 
-func (t *tokenizer) isOperator(o string) bool {
+func isOperator(o string) bool {
 	switch o {
 	case parenthesis.OpPow,
 		parenthesis.OpMulti,
@@ -126,8 +111,4 @@ func (t *tokenizer) isOperator(o string) bool {
 	default:
 		return false
 	}
-}
-
-func (t *tokenizer) move(v string) {
-	t.output = append(t.output, v)
 }
